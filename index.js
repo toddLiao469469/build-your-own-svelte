@@ -46,14 +46,14 @@ function parse(content) {
   function parseElement() {
     if (match("<")) {
       eat("<");
-      const tagName = readWhileMatching(/[a-zA-Z]/);
+      const tagName = readWhileMatching(/[a-z]/);
       const attributes = parseAttributeList();
       eat(">");
       const endTag = `</${tagName}>`;
 
       const element = {
         type: "Element",
-        name:tagName,
+        name: tagName,
         attributes,
         children: parseFragments(() => !match(endTag)),
       };
@@ -72,8 +72,8 @@ function parse(content) {
   }
 
   function parseText() {
-    const text = readWhileMatching(/[^<{}]/);
-    if (text.trim().length !== "") {
+    const text = readWhileMatching(/[^<{]/);
+    if (text.trim() !== "") {
       return { type: "Text", value: text };
     }
   }
@@ -89,12 +89,17 @@ function parse(content) {
   }
 
   function parseAttribute() {
-    const name = readWhileMatching(/[a-zA-Z]/);
+    const name = readWhileMatching(/[^=]/);
     eat("={");
     const value = parseJavaScript();
     eat("}");
-    return { type: "Attribute", name, value };
+    return {
+      type: "Attribute",
+      name,
+      value,
+    };
   }
+
   function parseJavaScript() {
     const js = acorn.parseExpressionAt(content, i, { ecmaVersion: 2022 });
     i = js.end;
@@ -104,11 +109,12 @@ function parse(content) {
   function match(str) {
     return content.slice(i, i + str.length) === str;
   }
+  
   function eat(str) {
     if (match(str)) {
       i += str.length;
     } else {
-      throw new Error(`Parse error: expected "${str}"`);
+      throw new Error(`Parse error: expecting "${str}"`);
     }
   }
   function readWhileMatching(regex) {
