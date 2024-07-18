@@ -5,6 +5,8 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "acorn":"8.12.1"
+    "acorn": "8.12.1",
+    "estree-walker": "^3.0.3",
+    "periscopic": "^4.0.2"
   }
 }
